@@ -48,6 +48,7 @@ import {
 const router: IRouter = Router();
 const cookieName = "sse_session";
 let seeded = false;
+const demoEmails = new Set(["aarav@example.edu", "nisha@example.edu", "kabir@example.edu"]);
 
 function getSecret() {
   const secret = process.env.SESSION_SECRET;
@@ -142,6 +143,24 @@ async function requireUser(req: Request, res: Response) {
 
 function normalizeSkill(value: string) {
   return value.trim().toLowerCase();
+}
+
+function isDemoStudent(student: Student) {
+  return demoEmails.has(student.email.toLowerCase());
+}
+
+function buildDemoReply(sender: Student, receiver: Student, message: string) {
+  const lowerMessage = message.toLowerCase();
+  if (lowerMessage.includes("meet") || lowerMessage.includes("video") || lowerMessage.includes("call")) {
+    return `Yes, ${sender.name.split(" ")[0]}! A study meet works for me. Send the link here and I'll join.`;
+  }
+  if (lowerMessage.includes("time") || lowerMessage.includes("when")) {
+    return `I can study later today. Tell me what time works for you and we can plan it here.`;
+  }
+  if (lowerMessage.includes("react") || lowerMessage.includes("python") || lowerMessage.includes("design")) {
+    return `That sounds useful. I can help with my skill, and I'd love to learn from you too.`;
+  }
+  return `Hey ${sender.name.split(" ")[0]}, thanks for messaging. I'm interested in exchanging skills. What would you like to study first?`;
 }
 
 function publicUser(student: Student, skills: Skill[]) {
@@ -528,14 +547,23 @@ router.post("/connections", async (req, res, next) => {
         ),
       )
       .limit(1);
+    const initialStatus = isDemoStudent(receiver) ? "accepted" : "pending";
     const connection =
-      existing ??
-      (
-        await db
-          .insert(connectionsTable)
-          .values({ senderId: student.id, receiverId: body.receiverId, status: "pending" })
-          .returning()
-      )[0];
+      existing && existing.status === "pending" && initialStatus === "accepted"
+        ? (
+            await db
+              .update(connectionsTable)
+              .set({ status: "accepted" })
+              .where(eq(connectionsTable.id, existing.id))
+              .returning()
+          )[0]
+        : existing ??
+          (
+            await db
+              .insert(connectionsTable)
+              .values({ senderId: student.id, receiverId: body.receiverId, status: initialStatus })
+              .returning()
+          )[0];
     if (!connection) {
       throw new Error("Connection request failed.");
     }
@@ -637,6 +665,14 @@ router.post("/messages/:userId", async (req, res, next) => {
       .returning();
     if (!message) {
       throw new Error("Message failed.");
+    }
+    const [receiver] = await db.select().from(studentsTable).where(eq(studentsTable.id, params.userId)).limit(1);
+    if (receiver && isDemoStudent(receiver)) {
+      await db.insert(messagesTable).values({
+        senderId: receiver.id,
+        receiverId: student.id,
+        message: buildDemoReply(student, receiver, body.message.trim()),
+      });
     }
     res.json(SendMessageResponse.parse({ ...message, timestamp: message.timestamp.toISOString() }));
   } catch (err) {

@@ -25,7 +25,8 @@ Full-stack Student Skill Exchange Platform for college students to trade skills,
 - Skill search and category filtering
 - Complementary matching where users teach each other's wanted skills
 - Connection requests with pending/accepted/rejected states
-- Basic text messaging between accepted connections
+- Two-way text messaging between accepted connections
+- Demo classmates auto-accept requests and send persisted replies so new users can test back-and-forth chat immediately
 - Dashboard summaries and recent activity
 
 ## Key Commands

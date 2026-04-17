@@ -1,8 +1,9 @@
 import { createContext, useContext, ReactNode } from "react";
-import { useGetCurrentUser, useLogout, useLogin, useRegister } from "@workspace/api-client-react";
+import { getGetCurrentUserQueryKey, useGetCurrentUser, useLogout, useLogin, useRegister } from "@workspace/api-client-react";
 import { PublicUser, LoginInput, RegisterInput } from "@workspace/api-client-react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 type AuthContextType = {
   user: PublicUser | null;
@@ -19,6 +20,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: authData, isLoading: isUserLoading, refetch } = useGetCurrentUser({
     query: {
@@ -28,7 +30,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useLogin({
     mutation: {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        queryClient.setQueryData(getGetCurrentUserQueryKey(), data);
         refetch();
         setLocation("/dashboard");
         toast({ title: "Welcome back!" });
@@ -45,7 +48,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerMutation = useRegister({
     mutation: {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        queryClient.setQueryData(getGetCurrentUserQueryKey(), data);
         refetch();
         setLocation("/dashboard");
         toast({ title: "Account created successfully!" });
@@ -63,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logoutMutation = useLogout({
     mutation: {
       onSuccess: () => {
+        queryClient.setQueryData(getGetCurrentUserQueryKey(), { user: null });
         refetch();
         setLocation("/");
         toast({ title: "Logged out successfully" });
