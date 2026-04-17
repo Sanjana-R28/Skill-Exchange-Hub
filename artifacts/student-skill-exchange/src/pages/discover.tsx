@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useListSkills, getListSkillsQueryKey, useSendConnectionRequest } from "@workspace/api-client-react";
+import { useListSkills, getListSkillsQueryKey, useSendConnectionRequest, useGetCurrentUser } from "@workspace/api-client-react";
 import { PublicUser } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ function useDebounce<T>(value: T, delay: number): T {
 export default function Discover() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { data: auth } = useGetCurrentUser({ query: { retry: false } });
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState<string>("all");
   const debouncedSearch = useDebounce(searchQuery, 300);
@@ -113,9 +114,9 @@ export default function Discover() {
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 text-primary animate-spin" />
         </div>
-      ) : users && users.length > 0 ? (
+      ) : users && users.filter((user) => user.id !== auth?.user?.id).length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {users.map((user: PublicUser) => {
+          {users.filter((user) => user.id !== auth?.user?.id).map((user: PublicUser) => {
             const hasRequested = requestedUsers.has(user.id);
             return (
               <Card key={user.id} className="overflow-hidden hover-elevate transition-all border-border/50 hover:border-primary/30 flex flex-col">

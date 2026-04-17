@@ -13,6 +13,8 @@ import Discover from "@/pages/discover";
 import Matches from "@/pages/matches";
 import Connections from "@/pages/connections";
 import Messages from "@/pages/messages";
+import Chat from "@/pages/chat";
+import StudyRoom from "@/pages/study-room";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -62,8 +64,14 @@ function Router() {
       <Route path="/connections">
         {() => <ProtectedRoute component={Connections} />}
       </Route>
+      <Route path="/chat">
+        {() => <ProtectedRoute component={Chat} />}
+      </Route>
       <Route path="/messages/:userId">
         {() => <ProtectedRoute component={Messages} />}
+      </Route>
+      <Route path="/study-room/:userId">
+        {() => <ProtectedRoute component={StudyRoom} />}
       </Route>
       <Route component={NotFound} />
     </Switch>

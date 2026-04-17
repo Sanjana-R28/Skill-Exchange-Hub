@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { Check, X, MessageSquare, Clock, UserCheck, UserPlus, Loader2 } from "lucide-react";
+import { Check, X, MessageSquare, Clock, UserCheck, UserPlus, Loader2, Video } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 export default function Connections() {
@@ -111,10 +111,15 @@ export default function Connections() {
             )}
             
             {type === "accepted" && (
-              <div className="ml-4">
+              <div className="ml-4 flex items-center gap-2">
                 <Link href={`/messages/${user.id}`}>
                   <Button size="sm" className="rounded-full h-9 px-4 font-medium shadow-sm">
                     <MessageSquare className="h-4 w-4 mr-2" /> Message
+                  </Button>
+                </Link>
+                <Link href={`/study-room/${user.id}`}>
+                  <Button size="sm" variant="outline" className="rounded-full h-9 px-4 font-medium">
+                    <Video className="h-4 w-4 mr-2" /> Meet
                   </Button>
                 </Link>
               </div>

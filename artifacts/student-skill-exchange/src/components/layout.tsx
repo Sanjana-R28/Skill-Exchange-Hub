@@ -24,6 +24,7 @@ export function Layout({ children }: { children: ReactNode }) {
     { label: "Discover", href: "/discover", icon: Search },
     { label: "Matches", href: "/matches", icon: Sparkles },
     { label: "Connections", href: "/connections", icon: Users },
+    { label: "Chat", href: "/chat", icon: MessageSquare },
   ];
 
   if (!user) {

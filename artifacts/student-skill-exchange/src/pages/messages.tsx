@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Send, ArrowLeft, Loader2, Info } from "lucide-react";
+import { Send, ArrowLeft, Loader2, Info, MessageSquare, Video } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 
@@ -95,15 +95,23 @@ export default function Messages() {
         </Link>
         
         {otherUser ? (
-          <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 border">
-              <AvatarImage src={otherUser.profilePicture} />
-              <AvatarFallback className="bg-primary/10 text-primary">{getInitials(otherUser.name)}</AvatarFallback>
-            </Avatar>
-            <div>
-              <h3 className="font-semibold">{otherUser.name}</h3>
-              <p className="text-xs text-muted-foreground">{otherUser.college} • {otherUser.branch}</p>
+          <div className="flex items-center justify-between gap-3 w-full">
+            <div className="flex items-center gap-3 min-w-0">
+              <Avatar className="h-10 w-10 border">
+                <AvatarImage src={otherUser.profilePicture} />
+                <AvatarFallback className="bg-primary/10 text-primary">{getInitials(otherUser.name)}</AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <h3 className="font-semibold truncate">{otherUser.name}</h3>
+                <p className="text-xs text-muted-foreground truncate">{otherUser.college} • {otherUser.branch}</p>
+              </div>
             </div>
+            <Link href={`/study-room/${otherUser.id}`}>
+              <Button variant="outline" size="sm" className="rounded-full shrink-0">
+                <Video className="h-4 w-4 mr-2" />
+                Study Meet
+              </Button>
+            </Link>
           </div>
         ) : (
           <div className="flex items-center gap-3">

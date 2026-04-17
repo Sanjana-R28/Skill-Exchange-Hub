@@ -350,10 +350,14 @@ router.put("/profile", async (req, res, next) => {
 router.get("/skills", async (req, res, next) => {
   try {
     const query = ListSkillsQueryParams.parse(req.query);
+    const userId = await currentUserId(req);
     const users = await getAllPublicUsers();
     const q = query.q?.toLowerCase().trim();
     const category = query.category?.toLowerCase().trim();
     const filtered = users.filter((user) => {
+      if (userId && user.id === userId) {
+        return false;
+      }
       const skills = [...user.skillsOffered, ...user.skillsWanted];
       const matchesQuery = !q || skills.some((skill) => skill.name.toLowerCase().includes(q));
       const matchesCategory = !category || category === "all" || skills.some((skill) => skill.category.toLowerCase() === category);
