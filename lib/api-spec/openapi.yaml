@@ -10,13 +10,26 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: profile
+    description: Profile operations
+  - name: skills
+    description: Skill operations
+  - name: matches
+    description: Matching operations
+  - name: connections
+    description: Connection operations
+  - name: messages
+    description: Messaging operations
+  - name: dashboard
+    description: Dashboard operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +37,298 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a student account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "200":
+          description: Registered user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Logged in user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current auth state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logout status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+  /profile:
+    get:
+      operationId: getMyProfile
+      tags: [profile]
+      summary: Get my profile
+      responses:
+        "200":
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+    put:
+      operationId: updateMyProfile
+      tags: [profile]
+      summary: Update my profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileInput"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+  /skills:
+    get:
+      operationId: listSkills
+      tags: [skills]
+      summary: Search users by skill and category
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: category
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PublicUser"
+    post:
+      operationId: addSkill
+      tags: [skills]
+      summary: Add a skill
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SkillInput"
+      responses:
+        "200":
+          description: Created skill
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Skill"
+  /skills/{skillId}:
+    put:
+      operationId: updateSkill
+      tags: [skills]
+      summary: Update a skill
+      parameters:
+        - in: path
+          name: skillId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SkillInput"
+      responses:
+        "200":
+          description: Updated skill
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Skill"
+    delete:
+      operationId: deleteSkill
+      tags: [skills]
+      summary: Delete a skill
+      parameters:
+        - in: path
+          name: skillId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Delete status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+  /matches:
+    get:
+      operationId: listMatches
+      tags: [matches]
+      summary: Suggested complementary skill matches
+      responses:
+        "200":
+          description: Matches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Match"
+  /connections:
+    get:
+      operationId: listConnections
+      tags: [connections]
+      summary: List my connection requests and connections
+      responses:
+        "200":
+          description: Connections
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectionBoard"
+    post:
+      operationId: sendConnectionRequest
+      tags: [connections]
+      summary: Send a connection request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConnectionRequestInput"
+      responses:
+        "200":
+          description: Created connection request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Connection"
+  /connections/{connectionId}/respond:
+    post:
+      operationId: respondToConnection
+      tags: [connections]
+      summary: Accept or reject a connection request
+      parameters:
+        - in: path
+          name: connectionId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConnectionResponseInput"
+      responses:
+        "200":
+          description: Updated connection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Connection"
+  /messages/{userId}:
+    get:
+      operationId: listMessages
+      tags: [messages]
+      summary: List messages with a connected user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      operationId: sendMessage
+      tags: [messages]
+      summary: Send a message to a connected user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "200":
+          description: Sent message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Dashboard summary
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dashboard"
 components:
   schemas:
     HealthStatus:
@@ -31,6 +336,219 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
-
+      required: [status]
+    StatusResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        message:
+          type: string
+      required: [ok, message]
+    RegisterInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        college:
+          type: string
+        branch:
+          type: string
+      required: [name, email, password, college, branch]
+    LoginInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          anyOf:
+            - $ref: "#/components/schemas/PublicUser"
+            - type: "null"
+      required: [user]
+    ProfileInput:
+      type: object
+      properties:
+        name:
+          type: string
+        college:
+          type: string
+        branch:
+          type: string
+        profilePicture:
+          type: string
+      required: [name, college, branch]
+    SkillInput:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        direction:
+          type: string
+          enum: [offered, wanted]
+      required: [name, category, direction]
+    ConnectionRequestInput:
+      type: object
+      properties:
+        receiverId:
+          type: integer
+      required: [receiverId]
+    ConnectionResponseInput:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [accepted, rejected]
+      required: [status]
+    MessageInput:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+    Skill:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        direction:
+          type: string
+          enum: [offered, wanted]
+      required: [id, userId, name, category, direction]
+    PublicUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        college:
+          type: string
+        branch:
+          type: string
+        profilePicture:
+          type: string
+        skillsOffered:
+          type: array
+          items:
+            $ref: "#/components/schemas/Skill"
+        skillsWanted:
+          type: array
+          items:
+            $ref: "#/components/schemas/Skill"
+      required: [id, name, email, college, branch, skillsOffered, skillsWanted]
+    Profile:
+      allOf:
+        - $ref: "#/components/schemas/PublicUser"
+    Match:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/PublicUser"
+        theyTeach:
+          type: array
+          items:
+            type: string
+        youTeach:
+          type: array
+          items:
+            type: string
+        score:
+          type: integer
+      required: [user, theyTeach, youTeach, score]
+    Connection:
+      type: object
+      properties:
+        id:
+          type: integer
+        senderId:
+          type: integer
+        receiverId:
+          type: integer
+        status:
+          type: string
+          enum: [pending, accepted, rejected]
+        createdAt:
+          type: string
+        otherUser:
+          $ref: "#/components/schemas/PublicUser"
+      required: [id, senderId, receiverId, status, createdAt, otherUser]
+    ConnectionBoard:
+      type: object
+      properties:
+        incoming:
+          type: array
+          items:
+            $ref: "#/components/schemas/Connection"
+        outgoing:
+          type: array
+          items:
+            $ref: "#/components/schemas/Connection"
+        accepted:
+          type: array
+          items:
+            $ref: "#/components/schemas/Connection"
+      required: [incoming, outgoing, accepted]
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+        senderId:
+          type: integer
+        receiverId:
+          type: integer
+        message:
+          type: string
+        timestamp:
+          type: string
+      required: [id, senderId, receiverId, message, timestamp]
+    Dashboard:
+      type: object
+      properties:
+        matchCount:
+          type: integer
+        incomingRequests:
+          type: integer
+        connectionCount:
+          type: integer
+        messageCount:
+          type: integer
+        categoryCounts:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              count:
+                type: integer
+            required: [category, count]
+        recentActivity:
+          type: array
+          items:
+            type: string
+      required: [matchCount, incomingRequests, connectionCount, messageCount, categoryCounts, recentActivity]

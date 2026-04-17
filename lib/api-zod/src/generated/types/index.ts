@@ -6,4 +6,27 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./authResponse";
+export * from "./connection";
+export * from "./connectionBoard";
+export * from "./connectionRequestInput";
+export * from "./connectionResponseInput";
+export * from "./connectionResponseInputStatus";
+export * from "./connectionStatus";
+export * from "./dashboard";
+export * from "./dashboardCategoryCountsItem";
 export * from "./healthStatus";
+export * from "./listSkillsParams";
+export * from "./loginInput";
+export * from "./match";
+export * from "./message";
+export * from "./messageInput";
+export * from "./profile";
+export * from "./profileInput";
+export * from "./publicUser";
+export * from "./registerInput";
+export * from "./skill";
+export * from "./skillDirection";
+export * from "./skillInput";
+export * from "./skillInputDirection";
+export * from "./statusResponse";

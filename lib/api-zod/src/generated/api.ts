@@ -8,9 +8,576 @@
 import * as zod from "zod";
 
 /**
- * Returns server health status
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
+});
+
+/**
+ * @summary Register a student account
+ */
+export const registerBodyNameMin = 2;
+
+export const registerBodyPasswordMin = 6;
+
+export const RegisterBody = zod.object({
+  name: zod.string().min(registerBodyNameMin),
+  email: zod.string().email(),
+  password: zod.string().min(registerBodyPasswordMin),
+  college: zod.string(),
+  branch: zod.string(),
+});
+
+export const RegisterResponse = zod.object({
+  user: zod.union([
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      email: zod.string(),
+      college: zod.string(),
+      branch: zod.string(),
+      profilePicture: zod.string().optional(),
+      skillsOffered: zod.array(
+        zod.object({
+          id: zod.number(),
+          userId: zod.number(),
+          name: zod.string(),
+          category: zod.string(),
+          direction: zod.enum(["offered", "wanted"]),
+        }),
+      ),
+      skillsWanted: zod.array(
+        zod.object({
+          id: zod.number(),
+          userId: zod.number(),
+          name: zod.string(),
+          category: zod.string(),
+          direction: zod.enum(["offered", "wanted"]),
+        }),
+      ),
+    }),
+    zod.null(),
+  ]),
+});
+
+/**
+ * @summary Login
+ */
+export const LoginBody = zod.object({
+  email: zod.string().email(),
+  password: zod.string(),
+});
+
+export const LoginResponse = zod.object({
+  user: zod.union([
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      email: zod.string(),
+      college: zod.string(),
+      branch: zod.string(),
+      profilePicture: zod.string().optional(),
+      skillsOffered: zod.array(
+        zod.object({
+          id: zod.number(),
+          userId: zod.number(),
+          name: zod.string(),
+          category: zod.string(),
+          direction: zod.enum(["offered", "wanted"]),
+        }),
+      ),
+      skillsWanted: zod.array(
+        zod.object({
+          id: zod.number(),
+          userId: zod.number(),
+          name: zod.string(),
+          category: zod.string(),
+          direction: zod.enum(["offered", "wanted"]),
+        }),
+      ),
+    }),
+    zod.null(),
+  ]),
+});
+
+/**
+ * @summary Get current user
+ */
+export const GetCurrentUserResponse = zod.object({
+  user: zod.union([
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      email: zod.string(),
+      college: zod.string(),
+      branch: zod.string(),
+      profilePicture: zod.string().optional(),
+      skillsOffered: zod.array(
+        zod.object({
+          id: zod.number(),
+          userId: zod.number(),
+          name: zod.string(),
+          category: zod.string(),
+          direction: zod.enum(["offered", "wanted"]),
+        }),
+      ),
+      skillsWanted: zod.array(
+        zod.object({
+          id: zod.number(),
+          userId: zod.number(),
+          name: zod.string(),
+          category: zod.string(),
+          direction: zod.enum(["offered", "wanted"]),
+        }),
+      ),
+    }),
+    zod.null(),
+  ]),
+});
+
+/**
+ * @summary Logout
+ */
+export const LogoutResponse = zod.object({
+  ok: zod.boolean(),
+  message: zod.string(),
+});
+
+/**
+ * @summary Get my profile
+ */
+export const GetMyProfileResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  college: zod.string(),
+  branch: zod.string(),
+  profilePicture: zod.string().optional(),
+  skillsOffered: zod.array(
+    zod.object({
+      id: zod.number(),
+      userId: zod.number(),
+      name: zod.string(),
+      category: zod.string(),
+      direction: zod.enum(["offered", "wanted"]),
+    }),
+  ),
+  skillsWanted: zod.array(
+    zod.object({
+      id: zod.number(),
+      userId: zod.number(),
+      name: zod.string(),
+      category: zod.string(),
+      direction: zod.enum(["offered", "wanted"]),
+    }),
+  ),
+});
+
+/**
+ * @summary Update my profile
+ */
+export const UpdateMyProfileBody = zod.object({
+  name: zod.string(),
+  college: zod.string(),
+  branch: zod.string(),
+  profilePicture: zod.string().optional(),
+});
+
+export const UpdateMyProfileResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  college: zod.string(),
+  branch: zod.string(),
+  profilePicture: zod.string().optional(),
+  skillsOffered: zod.array(
+    zod.object({
+      id: zod.number(),
+      userId: zod.number(),
+      name: zod.string(),
+      category: zod.string(),
+      direction: zod.enum(["offered", "wanted"]),
+    }),
+  ),
+  skillsWanted: zod.array(
+    zod.object({
+      id: zod.number(),
+      userId: zod.number(),
+      name: zod.string(),
+      category: zod.string(),
+      direction: zod.enum(["offered", "wanted"]),
+    }),
+  ),
+});
+
+/**
+ * @summary Search users by skill and category
+ */
+export const ListSkillsQueryParams = zod.object({
+  q: zod.coerce.string().optional(),
+  category: zod.coerce.string().optional(),
+});
+
+export const ListSkillsResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  college: zod.string(),
+  branch: zod.string(),
+  profilePicture: zod.string().optional(),
+  skillsOffered: zod.array(
+    zod.object({
+      id: zod.number(),
+      userId: zod.number(),
+      name: zod.string(),
+      category: zod.string(),
+      direction: zod.enum(["offered", "wanted"]),
+    }),
+  ),
+  skillsWanted: zod.array(
+    zod.object({
+      id: zod.number(),
+      userId: zod.number(),
+      name: zod.string(),
+      category: zod.string(),
+      direction: zod.enum(["offered", "wanted"]),
+    }),
+  ),
+});
+export const ListSkillsResponse = zod.array(ListSkillsResponseItem);
+
+/**
+ * @summary Add a skill
+ */
+export const AddSkillBody = zod.object({
+  name: zod.string(),
+  category: zod.string(),
+  direction: zod.enum(["offered", "wanted"]),
+});
+
+export const AddSkillResponse = zod.object({
+  id: zod.number(),
+  userId: zod.number(),
+  name: zod.string(),
+  category: zod.string(),
+  direction: zod.enum(["offered", "wanted"]),
+});
+
+/**
+ * @summary Update a skill
+ */
+export const UpdateSkillParams = zod.object({
+  skillId: zod.coerce.number(),
+});
+
+export const UpdateSkillBody = zod.object({
+  name: zod.string(),
+  category: zod.string(),
+  direction: zod.enum(["offered", "wanted"]),
+});
+
+export const UpdateSkillResponse = zod.object({
+  id: zod.number(),
+  userId: zod.number(),
+  name: zod.string(),
+  category: zod.string(),
+  direction: zod.enum(["offered", "wanted"]),
+});
+
+/**
+ * @summary Delete a skill
+ */
+export const DeleteSkillParams = zod.object({
+  skillId: zod.coerce.number(),
+});
+
+export const DeleteSkillResponse = zod.object({
+  ok: zod.boolean(),
+  message: zod.string(),
+});
+
+/**
+ * @summary Suggested complementary skill matches
+ */
+export const ListMatchesResponseItem = zod.object({
+  user: zod.object({
+    id: zod.number(),
+    name: zod.string(),
+    email: zod.string(),
+    college: zod.string(),
+    branch: zod.string(),
+    profilePicture: zod.string().optional(),
+    skillsOffered: zod.array(
+      zod.object({
+        id: zod.number(),
+        userId: zod.number(),
+        name: zod.string(),
+        category: zod.string(),
+        direction: zod.enum(["offered", "wanted"]),
+      }),
+    ),
+    skillsWanted: zod.array(
+      zod.object({
+        id: zod.number(),
+        userId: zod.number(),
+        name: zod.string(),
+        category: zod.string(),
+        direction: zod.enum(["offered", "wanted"]),
+      }),
+    ),
+  }),
+  theyTeach: zod.array(zod.string()),
+  youTeach: zod.array(zod.string()),
+  score: zod.number(),
+});
+export const ListMatchesResponse = zod.array(ListMatchesResponseItem);
+
+/**
+ * @summary List my connection requests and connections
+ */
+export const ListConnectionsResponse = zod.object({
+  incoming: zod.array(
+    zod.object({
+      id: zod.number(),
+      senderId: zod.number(),
+      receiverId: zod.number(),
+      status: zod.enum(["pending", "accepted", "rejected"]),
+      createdAt: zod.string(),
+      otherUser: zod.object({
+        id: zod.number(),
+        name: zod.string(),
+        email: zod.string(),
+        college: zod.string(),
+        branch: zod.string(),
+        profilePicture: zod.string().optional(),
+        skillsOffered: zod.array(
+          zod.object({
+            id: zod.number(),
+            userId: zod.number(),
+            name: zod.string(),
+            category: zod.string(),
+            direction: zod.enum(["offered", "wanted"]),
+          }),
+        ),
+        skillsWanted: zod.array(
+          zod.object({
+            id: zod.number(),
+            userId: zod.number(),
+            name: zod.string(),
+            category: zod.string(),
+            direction: zod.enum(["offered", "wanted"]),
+          }),
+        ),
+      }),
+    }),
+  ),
+  outgoing: zod.array(
+    zod.object({
+      id: zod.number(),
+      senderId: zod.number(),
+      receiverId: zod.number(),
+      status: zod.enum(["pending", "accepted", "rejected"]),
+      createdAt: zod.string(),
+      otherUser: zod.object({
+        id: zod.number(),
+        name: zod.string(),
+        email: zod.string(),
+        college: zod.string(),
+        branch: zod.string(),
+        profilePicture: zod.string().optional(),
+        skillsOffered: zod.array(
+          zod.object({
+            id: zod.number(),
+            userId: zod.number(),
+            name: zod.string(),
+            category: zod.string(),
+            direction: zod.enum(["offered", "wanted"]),
+          }),
+        ),
+        skillsWanted: zod.array(
+          zod.object({
+            id: zod.number(),
+            userId: zod.number(),
+            name: zod.string(),
+            category: zod.string(),
+            direction: zod.enum(["offered", "wanted"]),
+          }),
+        ),
+      }),
+    }),
+  ),
+  accepted: zod.array(
+    zod.object({
+      id: zod.number(),
+      senderId: zod.number(),
+      receiverId: zod.number(),
+      status: zod.enum(["pending", "accepted", "rejected"]),
+      createdAt: zod.string(),
+      otherUser: zod.object({
+        id: zod.number(),
+        name: zod.string(),
+        email: zod.string(),
+        college: zod.string(),
+        branch: zod.string(),
+        profilePicture: zod.string().optional(),
+        skillsOffered: zod.array(
+          zod.object({
+            id: zod.number(),
+            userId: zod.number(),
+            name: zod.string(),
+            category: zod.string(),
+            direction: zod.enum(["offered", "wanted"]),
+          }),
+        ),
+        skillsWanted: zod.array(
+          zod.object({
+            id: zod.number(),
+            userId: zod.number(),
+            name: zod.string(),
+            category: zod.string(),
+            direction: zod.enum(["offered", "wanted"]),
+          }),
+        ),
+      }),
+    }),
+  ),
+});
+
+/**
+ * @summary Send a connection request
+ */
+export const SendConnectionRequestBody = zod.object({
+  receiverId: zod.number(),
+});
+
+export const SendConnectionRequestResponse = zod.object({
+  id: zod.number(),
+  senderId: zod.number(),
+  receiverId: zod.number(),
+  status: zod.enum(["pending", "accepted", "rejected"]),
+  createdAt: zod.string(),
+  otherUser: zod.object({
+    id: zod.number(),
+    name: zod.string(),
+    email: zod.string(),
+    college: zod.string(),
+    branch: zod.string(),
+    profilePicture: zod.string().optional(),
+    skillsOffered: zod.array(
+      zod.object({
+        id: zod.number(),
+        userId: zod.number(),
+        name: zod.string(),
+        category: zod.string(),
+        direction: zod.enum(["offered", "wanted"]),
+      }),
+    ),
+    skillsWanted: zod.array(
+      zod.object({
+        id: zod.number(),
+        userId: zod.number(),
+        name: zod.string(),
+        category: zod.string(),
+        direction: zod.enum(["offered", "wanted"]),
+      }),
+    ),
+  }),
+});
+
+/**
+ * @summary Accept or reject a connection request
+ */
+export const RespondToConnectionParams = zod.object({
+  connectionId: zod.coerce.number(),
+});
+
+export const RespondToConnectionBody = zod.object({
+  status: zod.enum(["accepted", "rejected"]),
+});
+
+export const RespondToConnectionResponse = zod.object({
+  id: zod.number(),
+  senderId: zod.number(),
+  receiverId: zod.number(),
+  status: zod.enum(["pending", "accepted", "rejected"]),
+  createdAt: zod.string(),
+  otherUser: zod.object({
+    id: zod.number(),
+    name: zod.string(),
+    email: zod.string(),
+    college: zod.string(),
+    branch: zod.string(),
+    profilePicture: zod.string().optional(),
+    skillsOffered: zod.array(
+      zod.object({
+        id: zod.number(),
+        userId: zod.number(),
+        name: zod.string(),
+        category: zod.string(),
+        direction: zod.enum(["offered", "wanted"]),
+      }),
+    ),
+    skillsWanted: zod.array(
+      zod.object({
+        id: zod.number(),
+        userId: zod.number(),
+        name: zod.string(),
+        category: zod.string(),
+        direction: zod.enum(["offered", "wanted"]),
+      }),
+    ),
+  }),
+});
+
+/**
+ * @summary List messages with a connected user
+ */
+export const ListMessagesParams = zod.object({
+  userId: zod.coerce.number(),
+});
+
+export const ListMessagesResponseItem = zod.object({
+  id: zod.number(),
+  senderId: zod.number(),
+  receiverId: zod.number(),
+  message: zod.string(),
+  timestamp: zod.string(),
+});
+export const ListMessagesResponse = zod.array(ListMessagesResponseItem);
+
+/**
+ * @summary Send a message to a connected user
+ */
+export const SendMessageParams = zod.object({
+  userId: zod.coerce.number(),
+});
+
+export const SendMessageBody = zod.object({
+  message: zod.string(),
+});
+
+export const SendMessageResponse = zod.object({
+  id: zod.number(),
+  senderId: zod.number(),
+  receiverId: zod.number(),
+  message: zod.string(),
+  timestamp: zod.string(),
+});
+
+/**
+ * @summary Dashboard summary
+ */
+export const GetDashboardResponse = zod.object({
+  matchCount: zod.number(),
+  incomingRequests: zod.number(),
+  connectionCount: zod.number(),
+  messageCount: zod.number(),
+  categoryCounts: zod.array(
+    zod.object({
+      category: zod.string(),
+      count: zod.number(),
+    }),
+  ),
+  recentActivity: zod.array(zod.string()),
 });

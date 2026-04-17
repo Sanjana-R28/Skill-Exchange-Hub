@@ -8,3 +8,155 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface StatusResponse {
+  ok: boolean;
+  message: string;
+}
+
+export interface RegisterInput {
+  /** @minLength 2 */
+  name: string;
+  email: string;
+  /** @minLength 6 */
+  password: string;
+  college: string;
+  branch: string;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
+export type SkillDirection =
+  (typeof SkillDirection)[keyof typeof SkillDirection];
+
+export const SkillDirection = {
+  offered: "offered",
+  wanted: "wanted",
+} as const;
+
+export interface Skill {
+  id: number;
+  userId: number;
+  name: string;
+  category: string;
+  direction: SkillDirection;
+}
+
+export interface PublicUser {
+  id: number;
+  name: string;
+  email: string;
+  college: string;
+  branch: string;
+  profilePicture?: string;
+  skillsOffered: Skill[];
+  skillsWanted: Skill[];
+}
+
+export interface AuthResponse {
+  user: PublicUser | null;
+}
+
+export interface ProfileInput {
+  name: string;
+  college: string;
+  branch: string;
+  profilePicture?: string;
+}
+
+export type SkillInputDirection =
+  (typeof SkillInputDirection)[keyof typeof SkillInputDirection];
+
+export const SkillInputDirection = {
+  offered: "offered",
+  wanted: "wanted",
+} as const;
+
+export interface SkillInput {
+  name: string;
+  category: string;
+  direction: SkillInputDirection;
+}
+
+export interface ConnectionRequestInput {
+  receiverId: number;
+}
+
+export type ConnectionResponseInputStatus =
+  (typeof ConnectionResponseInputStatus)[keyof typeof ConnectionResponseInputStatus];
+
+export const ConnectionResponseInputStatus = {
+  accepted: "accepted",
+  rejected: "rejected",
+} as const;
+
+export interface ConnectionResponseInput {
+  status: ConnectionResponseInputStatus;
+}
+
+export interface MessageInput {
+  message: string;
+}
+
+export type Profile = PublicUser;
+
+export interface Match {
+  user: PublicUser;
+  theyTeach: string[];
+  youTeach: string[];
+  score: number;
+}
+
+export type ConnectionStatus =
+  (typeof ConnectionStatus)[keyof typeof ConnectionStatus];
+
+export const ConnectionStatus = {
+  pending: "pending",
+  accepted: "accepted",
+  rejected: "rejected",
+} as const;
+
+export interface Connection {
+  id: number;
+  senderId: number;
+  receiverId: number;
+  status: ConnectionStatus;
+  createdAt: string;
+  otherUser: PublicUser;
+}
+
+export interface ConnectionBoard {
+  incoming: Connection[];
+  outgoing: Connection[];
+  accepted: Connection[];
+}
+
+export interface Message {
+  id: number;
+  senderId: number;
+  receiverId: number;
+  message: string;
+  timestamp: string;
+}
+
+export type DashboardCategoryCountsItem = {
+  category: string;
+  count: number;
+};
+
+export interface Dashboard {
+  matchCount: number;
+  incomingRequests: number;
+  connectionCount: number;
+  messageCount: number;
+  categoryCounts: DashboardCategoryCountsItem[];
+  recentActivity: string[];
+}
+
+export type ListSkillsParams = {
+  q?: string;
+  category?: string;
+};
