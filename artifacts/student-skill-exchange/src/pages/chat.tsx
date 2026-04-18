@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { MessageContent } from "@/components/message-content";
 import { MessageSquare, Send, Users, Video } from "lucide-react";
 
 export default function Chat() {
@@ -89,6 +90,24 @@ export default function Chat() {
     );
   };
 
+  const sendMeetLink = () => {
+    if (!selectedUserId || !selectedConnection || sendMessage.isPending) {
+      return;
+    }
+    const low = Math.min(selectedConnection.senderId, selectedConnection.receiverId);
+    const high = Math.max(selectedConnection.senderId, selectedConnection.receiverId);
+    const text = `Join my Google Meet study session: https://meet.new\nRoom note: skillx-study-${low}-${high}`;
+    sendMessage.mutate(
+      { userId: selectedUserId, data: { message: text } },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getListMessagesQueryKey(selectedUserId) });
+          queryClient.invalidateQueries({ queryKey: getListConnectionsQueryKey() });
+        },
+      },
+    );
+  };
+
   const ConnectionButton = ({ connection }: { connection: Connection }) => {
     const user = connection.otherUser;
     const isSelected = user.id === selectedUserId;
@@ -130,12 +149,18 @@ export default function Chat() {
           <p className="text-muted-foreground mt-1">Chat with students after both of you are connected.</p>
         </div>
         {selectedUser && (
-          <Link href={`/study-room/${selectedUser.id}`}>
-            <Button variant="outline" className="rounded-full">
-              <Video className="h-4 w-4 mr-2" />
-              Open Study Meet
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" className="rounded-full" onClick={sendMeetLink} disabled={sendMessage.isPending}>
+              <Send className="h-4 w-4 mr-2" />
+              Send Meet Link
             </Button>
-          </Link>
+            <Link href={`/study-room/${selectedUser.id}`}>
+              <Button variant="outline" className="rounded-full">
+                <Video className="h-4 w-4 mr-2" />
+                Open Study Meet
+              </Button>
+            </Link>
+          </div>
         )}
       </div>
 
@@ -198,7 +223,7 @@ export default function Chat() {
                                 : "bg-card border border-border rounded-bl-sm"
                             }`}
                           >
-                            <p className="text-sm whitespace-pre-wrap break-words">{message.message}</p>
+                            <MessageContent text={message.message} isMine={isMe} />
                             <p className={`text-[10px] mt-1 text-right ${isMe ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
                               {format(new Date(message.timestamp), "h:mm a")}
                             </p>

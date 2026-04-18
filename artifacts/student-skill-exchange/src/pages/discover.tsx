@@ -49,7 +49,8 @@ export default function Discover() {
 
   const { data: users, isLoading } = useListSkills(queryParams, {
     query: {
-      queryKey: getListSkillsQueryKey(queryParams)
+      queryKey: getListSkillsQueryKey(queryParams),
+      refetchInterval: 10000,
     }
   });
 
@@ -63,6 +64,7 @@ export default function Discover() {
           setRequestedUsers(prev => new Set(prev).add(userId));
           toast({ title: "Connection request sent!" });
           queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+          queryClient.invalidateQueries({ queryKey: getListSkillsQueryKey(queryParams) });
         },
         onError: (error: any) => {
           toast({ 
@@ -190,8 +192,8 @@ export default function Discover() {
         <div className="flex flex-col items-center justify-center py-20 text-center bg-muted/20 rounded-lg border border-dashed border-border mt-8">
           <Search className="h-12 w-12 text-muted-foreground opacity-30 mb-4" />
           <h3 className="text-xl font-bold mb-2">No users found</h3>
-          <p className="text-muted-foreground max-w-md">
-            We couldn't find anyone matching your search criteria. Try adjusting your filters or search terms.
+            <p className="text-muted-foreground max-w-md">
+            Every new signup appears here for other students. Try clearing your filters or search terms to see all available classmates.
           </p>
         </div>
       )}

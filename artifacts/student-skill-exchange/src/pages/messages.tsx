@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { MessageContent } from "@/components/message-content";
 import { Send, ArrowLeft, Loader2, Info, MessageSquare, Video } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -67,6 +68,21 @@ export default function Messages() {
     );
   };
 
+  const sendMeetLink = () => {
+    if (!connection || !userId || sendMessage.isPending) return;
+    const low = Math.min(connection.senderId, connection.receiverId);
+    const high = Math.max(connection.senderId, connection.receiverId);
+    const text = `Join my Google Meet study session: https://meet.new\nRoom note: skillx-study-${low}-${high}`;
+    sendMessage.mutate(
+      { userId, data: { message: text } },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getListMessagesQueryKey(userId) });
+        },
+      }
+    );
+  };
+
   if (!userId) return <div>Invalid User ID</div>;
 
   if (isLoading || !auth?.user) {
@@ -106,12 +122,18 @@ export default function Messages() {
                 <p className="text-xs text-muted-foreground truncate">{otherUser.college} • {otherUser.branch}</p>
               </div>
             </div>
-            <Link href={`/study-room/${otherUser.id}`}>
-              <Button variant="outline" size="sm" className="rounded-full shrink-0">
-                <Video className="h-4 w-4 mr-2" />
-                Study Meet
+            <div className="flex gap-2 shrink-0">
+              <Button variant="outline" size="sm" className="rounded-full" onClick={sendMeetLink} disabled={sendMessage.isPending}>
+                <Send className="h-4 w-4 mr-2" />
+                Send Meet Link
               </Button>
-            </Link>
+              <Link href={`/study-room/${otherUser.id}`}>
+                <Button variant="outline" size="sm" className="rounded-full">
+                  <Video className="h-4 w-4 mr-2" />
+                  Study Meet
+                </Button>
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="flex items-center gap-3">
@@ -183,7 +205,7 @@ export default function Messages() {
                           : 'bg-card border border-border shadow-sm rounded-bl-sm'
                       }`}
                     >
-                      <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
+                      <MessageContent text={msg.message} isMine={isMe} />
                       <p className={`text-[10px] mt-1 text-right ${isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                         {format(msgDate, 'h:mm a')}
                       </p>

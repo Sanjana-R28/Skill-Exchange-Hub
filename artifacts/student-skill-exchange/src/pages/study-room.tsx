@@ -1,17 +1,20 @@
 import { useMemo } from "react";
 import { Link, useParams } from "wouter";
-import { useListConnections } from "@workspace/api-client-react";
+import { getListMessagesQueryKey, useListConnections, useSendMessage } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, CalendarDays, Copy, ExternalLink, MessageSquare, Video } from "lucide-react";
+import { ArrowLeft, CalendarDays, Copy, ExternalLink, MessageSquare, Send, Video } from "lucide-react";
 
 export default function StudyRoom() {
   const params = useParams();
   const userId = params.userId ? Number(params.userId) : 0;
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { data: board, isLoading } = useListConnections({ query: { enabled: Boolean(userId) } });
+  const sendMessage = useSendMessage();
 
   const connection = board?.accepted.find((item) => item.otherUser.id === userId);
   const user = connection?.otherUser;
@@ -27,7 +30,7 @@ export default function StudyRoom() {
 
   const meetUrl = "https://meet.new";
   const inviteText = user
-    ? `Let's study together on Google Meet. Open ${meetUrl} and use room note: ${roomName}.`
+    ? `Join my Google Meet study session: ${meetUrl}\nRoom note: ${roomName}`
     : "";
 
   const getInitials = (name: string) =>
@@ -41,6 +44,24 @@ export default function StudyRoom() {
   const copyInvite = async () => {
     await navigator.clipboard.writeText(inviteText);
     toast({ title: "Study meet invite copied" });
+  };
+
+  const sendInvite = () => {
+    if (!userId || !inviteText || sendMessage.isPending) {
+      return;
+    }
+    sendMessage.mutate(
+      { userId, data: { message: inviteText } },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getListMessagesQueryKey(userId) });
+          toast({ title: "Study meet link sent in chat" });
+        },
+        onError: () => {
+          toast({ title: "Could not send meet link", variant: "destructive" });
+        },
+      },
+    );
   };
 
   if (isLoading) {
@@ -123,6 +144,10 @@ export default function StudyRoom() {
             <Button onClick={copyInvite} variant="outline" className="justify-start rounded-full">
               <Copy className="h-4 w-4 mr-2" />
               Copy invite
+            </Button>
+            <Button onClick={sendInvite} variant="outline" className="justify-start rounded-full" disabled={sendMessage.isPending}>
+              <Send className="h-4 w-4 mr-2" />
+              Send meet link
             </Button>
             <Link href={`/messages/${user.id}`}>
               <Button variant="outline" className="w-full justify-start rounded-full">

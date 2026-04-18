@@ -36,15 +36,18 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export default function AuthPage() {
   const { user, login, register, isLoggingIn, isRegistering } = useAuth();
   const [isLoginView, setIsLoginView] = useState(true);
+  const [registerValues, setRegisterValues] = useState<RegisterFormValues>({
+    name: "",
+    email: "",
+    password: "",
+    college: "",
+    branch: "",
+  });
+  const [registerErrors, setRegisterErrors] = useState<Partial<Record<keyof RegisterFormValues, string>>>({});
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
-  });
-
-  const registerForm = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: { name: "", email: "", password: "", college: "", branch: "" },
   });
 
   if (user) {
@@ -55,8 +58,26 @@ export default function AuthPage() {
     login(data);
   };
 
-  const onRegisterSubmit = (data: RegisterFormValues) => {
-    register(data);
+  const updateRegisterValue = (field: keyof RegisterFormValues, value: string) => {
+    setRegisterValues((current) => ({ ...current, [field]: value }));
+    setRegisterErrors((current) => ({ ...current, [field]: undefined }));
+  };
+
+  const onRegisterSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const parsed = registerSchema.safeParse(registerValues);
+    if (!parsed.success) {
+      const flattened = parsed.error.flatten().fieldErrors;
+      setRegisterErrors({
+        name: flattened.name?.[0],
+        email: flattened.email?.[0],
+        password: flattened.password?.[0],
+        college: flattened.college?.[0],
+        branch: flattened.branch?.[0],
+      });
+      return;
+    }
+    register(parsed.data);
   };
 
   return (
@@ -118,81 +139,76 @@ export default function AuthPage() {
                 </form>
               </Form>
             ) : (
-              <Form {...registerForm}>
-                <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-                  <FormField
-                    control={registerForm.control}
+              <form onSubmit={onRegisterSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium" htmlFor="register-name">Full Name</label>
+                  <Input
+                    id="register-name"
                     name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Alex Johnson" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    placeholder="Alex Johnson"
+                    value={registerValues.name}
+                    onChange={(event) => updateRegisterValue("name", event.target.value)}
+                    autoComplete="name"
                   />
-                  <FormField
-                    control={registerForm.control}
+                  {registerErrors.name ? <p className="text-[0.8rem] font-medium text-destructive">{registerErrors.name}</p> : null}
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium" htmlFor="register-email">Email</label>
+                  <Input
+                    id="register-email"
                     name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input placeholder="student@university.edu" type="email" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    placeholder="student@university.edu"
+                    type="email"
+                    value={registerValues.email}
+                    onChange={(event) => updateRegisterValue("email", event.target.value)}
+                    autoComplete="email"
                   />
-                  <FormField
-                    control={registerForm.control}
+                  {registerErrors.email ? <p className="text-[0.8rem] font-medium text-destructive">{registerErrors.email}</p> : null}
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium" htmlFor="register-password">Password</label>
+                  <Input
+                    id="register-password"
                     name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input placeholder="••••••••" type="password" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    placeholder="••••••••"
+                    type="password"
+                    value={registerValues.password}
+                    onChange={(event) => updateRegisterValue("password", event.target.value)}
+                    autoComplete="new-password"
                   />
+                  {registerErrors.password ? <p className="text-[0.8rem] font-medium text-destructive">{registerErrors.password}</p> : null}
+                </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={registerForm.control}
-                      name="college"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>College / University</FormLabel>
-                          <FormControl>
-                            <Input placeholder="State University" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={registerForm.control}
-                      name="branch"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Branch / Major</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Computer Science" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium" htmlFor="register-college">College / University</label>
+                      <Input
+                        id="register-college"
+                        name="college"
+                        placeholder="State University"
+                        value={registerValues.college}
+                        onChange={(event) => updateRegisterValue("college", event.target.value)}
+                        autoComplete="organization"
+                      />
+                      {registerErrors.college ? <p className="text-[0.8rem] font-medium text-destructive">{registerErrors.college}</p> : null}
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium" htmlFor="register-branch">Branch / Major</label>
+                      <Input
+                        id="register-branch"
+                        name="branch"
+                        placeholder="Computer Science"
+                        value={registerValues.branch}
+                        onChange={(event) => updateRegisterValue("branch", event.target.value)}
+                        autoComplete="organization-title"
+                      />
+                      {registerErrors.branch ? <p className="text-[0.8rem] font-medium text-destructive">{registerErrors.branch}</p> : null}
+                    </div>
                   </div>
                   <Button type="submit" className="w-full h-11 text-base font-medium mt-2" disabled={isRegistering}>
                     {isRegistering ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
                     Create Account
                   </Button>
                 </form>
-              </Form>
             )}
 
             <div className="mt-6 text-center text-sm">

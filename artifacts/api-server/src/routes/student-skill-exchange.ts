@@ -378,7 +378,8 @@ router.get("/skills", async (req, res, next) => {
         return false;
       }
       const skills = [...user.skillsOffered, ...user.skillsWanted];
-      const matchesQuery = !q || skills.some((skill) => skill.name.toLowerCase().includes(q));
+      const searchableProfile = [user.name, user.email, user.college, user.branch].join(" ").toLowerCase();
+      const matchesQuery = !q || searchableProfile.includes(q) || skills.some((skill) => skill.name.toLowerCase().includes(q));
       const matchesCategory = !category || category === "all" || skills.some((skill) => skill.category.toLowerCase() === category);
       return matchesQuery && matchesCategory;
     });

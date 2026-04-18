@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "nn084ePcC0lYfec9Wkbq6"
+uri = "file://APP_BUILD_GUIDE.md"
+type = "text"
+title = "Student Skill Exchange App Build Guide"
